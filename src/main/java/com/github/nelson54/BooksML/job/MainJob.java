@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +42,21 @@ public class MainJob implements ApplicationRunner {
 
             Integer nameCount = paragraphs
                     .parallelStream()
-                    .map(bookJob::run)
+                    .map(paragraph -> {
+                        try {
+                            return bookJob.run(paragraph);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return new ArrayList();
+                    })
                     .map(List::size)
                     .reduce((memo, size) -> memo + size).get();
+
+            System.out.println( "read "  + nameCount + " different names");
 
         } catch (Exception e) {
 
         }
-
-
     }
 }

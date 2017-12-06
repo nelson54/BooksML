@@ -1,8 +1,10 @@
 package com.github.nelson54.BooksML.job;
 
 
+import com.github.nelson54.BooksML.config.OpenNlpFactory;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.util.Span;
 import org.springframework.stereotype.Component;
 
@@ -14,50 +16,59 @@ import java.util.List;
 
 @Component
 public class BookJob {
-    private final NameFinderME nameFinder;
+    private final OpenNlpFactory openNlpFactory;
     private final List<String> names;
-    private final ClassLoader classLoader;
-    private final TokenNameFinderModel model;
 
-    public BookJob(NameFinderME nameFinder, ClassLoader classLoader) throws IOException {
-        String pathToPersonModel = classLoader.getResource("en-ner-person.bin").getFile();
-        InputStream is = new FileInputStream(pathToPersonModel);
-        this.model = new TokenNameFinderModel(is);
-        is.close();
-
-        this.classLoader = classLoader;
-        this.nameFinder = nameFinder;
+    public BookJob(OpenNlpFactory openNlpFactory) {
+        this.openNlpFactory = openNlpFactory;
         names = new ArrayList<>();
     }
 
-    public List<String> run(String paragraph) {
-        NameFinderME nameFinder = new NameFinderME(model);
-        if(paragraph != null && !paragraph.isEmpty()) {
-            String[] words = paragraph.split(" ");
+    public List<String> run(String paragraph) throws IOException {
+        List<String> names = new ArrayList<>();
 
+        String[] sentences = getSentences(paragraph);
 
-            Span nameSpans[] = nameFinder.find(words);
+        for (String sentence : sentences) {
+            String[] words = getWords(sentence);
 
-            List<String> names = new ArrayList<>();
-            StringBuilder sb;
+            names.addAll(getNames(words));
+        }
 
-            for (Span span : nameSpans) {
-                sb = new StringBuilder();
+        return names;
+    }
 
-                for (int i = span.getStart(); i < span.getEnd(); i++) {
-                    sb.append(words[i]);
+    private String[] getSentences(String paragraph) {
+        SentenceDetectorME detector = openNlpFactory.getSentenceDetector();
+        return detector.sentDetect(paragraph);
+    }
 
-                    if (i < span.getEnd() - 1) {
-                        sb.append(" ");
-                    } else {
-                        String name = sb.toString();
-                        names.add(name);
-                        System.out.println(name);
-                    }
+    private String[] getWords(String sentence) {
+        return sentence.split(" ");
+    }
+
+    private List<String> getNames(String[] words) throws IOException {
+        StringBuilder sb;
+        NameFinderME nameFinder = openNlpFactory.getNameFinder();
+        List<String> names = new ArrayList<>();
+
+        Span[] nameSpans = nameFinder.find(words);
+
+        for (Span span : nameSpans) {
+            sb = new StringBuilder();
+
+            for (int i = span.getStart(); i < span.getEnd(); i++) {
+                sb.append(words[i]);
+
+                if (i < span.getEnd() - 1) {
+                    sb.append(" ");
+                } else {
+                    String name = sb.toString();
+                    names.add(name);
+                    System.out.println(name);
                 }
             }
         }
-
         return names;
     }
 }
