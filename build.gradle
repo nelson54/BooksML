@@ -1,0 +1,63 @@
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.11'
+    id 'java'
+}
+
+lombok {
+    version = "1.16.18"
+    sha256 = "3ca225ce3917eac8bf4b7d2186845df4e70dcdede356dca8537b6d78a535c91e"
+}
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.9
+targetCompatibility = 1.9
+
+
+mainClassName = 'com.github.nelson54.BooksML.BookProcessor'
+
+dependencies {
+    compile 'org.apache.opennlp:opennlp-tools:1.8+'
+    compile 'org.springframework.boot:spring-boot-starter-batch:1.5+'
+
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.0+'
+    testCompile 'com.github.sbrannen:spring-test-junit5:1.0.2'
+    testCompile 'org.springframework.boot:spring-boot-starter-test:1.5+'
+
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.0.0'
+
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0+'
+
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+idea {
+    project {
+        ipr {
+            withXml { provider ->
+                def projectXml = provider.asNode()
+
+                def compilerConfiguration = projectXml.component.find { component ->
+                    component.'@name' == 'CompilerConfiguration'
+                }
+
+                def currentAnnotationProcessing = compilerConfiguration.annotationProcessing
+                currentAnnotationProcessing.replaceNode {
+                    annotationProcessing {
+                        profile(name: 'Default', default: true, enabled: true) {
+                            processorPath(useClasspath: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
