@@ -18,4 +18,8 @@ public class Paragraph {
     public void addSentence(Sentence sentence) {
         sentences.add(sentence);
     }
+
+    public String getParagraph() {
+        return paragraph;
+    }
 }

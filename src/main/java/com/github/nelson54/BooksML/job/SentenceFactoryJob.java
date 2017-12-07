@@ -20,16 +20,24 @@ public class SentenceFactoryJob {
 
         String[] sentences = sentenceDetector.sentDetect(paragraph.getParagraph());
 
-        for(int i=0; i<sentences.length; i++) {
-            paragraph.addSentence(new Sentence();
+        String[] words;
+        for (String sentence : sentences) {
+            words = splitAndSanatizeWords(sentence);
+            paragraph.addSentence(new Sentence(words));
         }
     }
 
     String[] splitAndSanatizeWords(String sentence) {
+        String[] words = sentence.split(" ");
 
+        for(int i=0; i<words.length;i++) {
+            words[i] = sanitizeWord(words[i]);
+        }
+
+        return words;
     }
 
     String sanitizeWord(String word) {
-        word.
+        return word;
     }
 }

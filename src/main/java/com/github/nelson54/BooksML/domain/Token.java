@@ -12,4 +12,8 @@ public class Token {
         this.position = position;
         this.type = type;
     }
+
+    public TokenType getType() {
+        return type;
+    }
 }
