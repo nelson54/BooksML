@@ -17,5 +17,6 @@ public class BookProcessor {
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(BookProcessor.class, args);
+
     }
 }

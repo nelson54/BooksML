@@ -27,7 +27,7 @@ public class CoreCoref {
 
         Annotation document = new Annotation(warAndPeaceFile);
         Properties props = new Properties();
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,depparse,mention,parse,dcoref");
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,parse,coref");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         pipeline.annotate(document);
         System.out.println("---");
